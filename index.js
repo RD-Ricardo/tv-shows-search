@@ -1,23 +1,48 @@
+const inputFilme = document.getElementById('query');
+const ul = document.getElementById('shows');
+
 const handleSearch = async (event) => {
+  
   event.preventDefault();
 
-  // implemente a consulta a partir daqui
+  const response = await fetch(`https://api.tvmaze.com/search/shows?q=${inputFilme.value}`);
 
-  //// Exemplo de endpoint: https://api.tvmaze.com/search/shows?q=lost
+  if(response.ok)
+  {
+      const result = await response.json();
 
-  //// Elementos de leiaute importantes:
+      if(result.length == 0)
+      {
+        const message = document.querySelector('#message');
+        message.innerHTML = 'Não foi possivel encontrar filmes com este nome';
+        return;
+      }
 
-  //  #message: use para exibir mensagens aos usuário, por exemplo:
-
-  const message = document.querySelector('#message');
-  message.innerHTML = 'exercício ainda não resolvido.';
-
-  //  #shows: conterá os shows, cada um em um <li>, por exemplo:
-  // <li>
-  //   <img class="poster" src="https://static.tvmaze.com/uploads/images/medium_portrait/0/1389.jpg" />
-  //   <span class="show-name">Lost</span>
-  // </li>
+      inputFilme.value = '';
+      ul.innerHTML = '';
+      criarFilmes(result)   
+  }
 };
+
+const criarFilmes = (filmes) => { 
+
+  filmes.forEach(i => {
+
+    const imagem = i.show?.image?.medium || '';
+
+    ul.insertAdjacentHTML("beforeend", `
+
+        <li>
+          
+          <div>
+            <img src=" ${imagem}" />  
+            ${i.show.name}
+          </div>
+        </li>
+    `);
+  });
+
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   document
